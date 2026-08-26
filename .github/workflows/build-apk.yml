@@ -1,0 +1,41 @@
+name: Build DAYDONE APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get project files
+        uses: actions/checkout@v4
+
+      - name: Extract DAYDONE project
+        run: |
+          unzip -q DAYDONE_ANDROID_PROJECT_FIXED.zip -d build-project
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Build DAYDONE APK
+        working-directory: build-project/DAYDONE_ANDROID
+        run: |
+          gradle assembleDebug
+
+      - name: Save APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: DAYDONE-APK
+          path: build-project/DAYDONE_ANDROID/app/build/outputs/apk/debug/app-debug.apk
